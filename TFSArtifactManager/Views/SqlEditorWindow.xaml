@@ -1,0 +1,9 @@
+﻿<Window x:Class="TFSArtifactManager.Views.SqlEditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:Views="clr-namespace:TFSArtifactManager.Views"
+        Icon="/Images/sql.png"
+        Title="Oracle SQL Editor" Height="768" Width="1152">
+    <DockPanel LastChildFill="True">
+        <Views:SqlEditor x:Name="uxSqlEditor"/>
+    </DockPanel>
+</Window>

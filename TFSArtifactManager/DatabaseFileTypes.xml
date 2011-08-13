@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FileTypeInfo TypeName="Database" FileType="Database">
+  <FileExtensions>
+    <FileExtension Category="Packages" Extension="PKB" Name="PACKAGE BODY" />
+    <FileExtension Category="Packages" Extension="PKS" Name="PACKAGE" />
+    <FileExtension Category="Functions" Extension="FNC" Name="FUNCTION" />
+    <FileExtension Category="Procedures" Extension="PRC" Name="PROCEDURE" />
+    <FileExtension Category="Triggers" Extension="TRG" Name="TRIGGER" />
+    <FileExtension Category="Views" Extension="VW" Name="VIEW" />
+    <FileExtension Category="SQL" Extension="SQL" Name="SQL" />
+  </FileExtensions>
+</FileTypeInfo>

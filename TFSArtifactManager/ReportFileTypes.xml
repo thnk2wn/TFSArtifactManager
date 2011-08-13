@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FileTypeInfo TypeName="Reports" FileType="Report">
+  <FileExtensions>
+    <FileExtension Category="Reports" Extension="RDL" Name="Report Definition" />
+    <FileExtension Category="Reports" Extension="RPTPROJ" Name="Report Project" />
+  </FileExtensions>
+</FileTypeInfo>

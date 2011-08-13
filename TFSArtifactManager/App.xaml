@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Application x:Class="TFSArtifactManager.App" StartupUri="MainWindow.xaml" Startup="Application_Startup" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+             xmlns:vml="clr-namespace:TFSArtifactManager.ViewModel">
+    <Application.Resources>
+        <ResourceDictionary>
+            <!-- seems this needs to be *after* the merged dictionaries -->
+            <vml:ViewModelLocator x:Key="Locator"  />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

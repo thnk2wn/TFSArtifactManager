@@ -1,0 +1,82 @@
+<UserControl x:Class="TFSArtifactManager.Views.SqlEditor"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
+             xmlns:forms="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms" mc:Ignorable="d" 
+             d:DesignHeight="321" d:DesignWidth="608">
+    <DockPanel>
+        <ToolBar DockPanel.Dock="Top">
+            <ToolBar.Resources>
+                <Style TargetType="{x:Type Image}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type ButtonBase}, AncestorLevel=1}, Path=IsEnabled}" Value="False">
+                            <Setter Property="Opacity" Value="0.30" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ToolBar.Resources>
+            <Button Click="OpenFileClick">
+                <Image Source="/Images/Open.png" Height="16"/>
+            </Button>
+            <Button x:Name="uxSaveButton" Click="SaveFileClick">
+                <Image Source="/Images/Save.png" Height="16"/>
+            </Button>
+            <Separator/>
+            <Button x:Name="uxCutButton" Command="Cut">
+                <Image Source="/Images/Cut.png" Height="16"/>
+            </Button>
+            <Button Command="Copy">
+                <Image Source="/Images/Copy.png" Height="16"/>
+            </Button>
+            <Button Command="Paste">
+                <Image Source="/Images/Paste.png" Height="16"/>
+            </Button>
+            <Button x:Name="uxDeleteButton" Command="Delete">
+                <Image Source="/Images/Delete.png" Height="16"/>
+            </Button>
+            <Separator/>
+            <Button Command="Undo">
+                <Image Source="/Images/Undo.png" Height="16"/>
+            </Button>
+            <Button Command="Redo">
+                <Image Source="/Images/Redo.png" Height="16"/>
+            </Button>
+            <Separator/>
+            <CheckBox IsChecked="{Binding ElementName=uxSqlEditor,Path=WordWrap}">
+                <Image Source="/Images/WordWrap.png" Height="16"/>
+            </CheckBox>
+            <CheckBox IsChecked="{Binding ElementName=uxSqlEditor,Path=ShowLineNumbers}">
+                <TextBlock Width="16" TextAlignment="Center">#</TextBlock>
+            </CheckBox>
+            <CheckBox IsChecked="{Binding ElementName=uxSqlEditor,Path=Options.ShowEndOfLine}">
+                <TextBlock Width="16" TextAlignment="Center">¶</TextBlock>
+            </CheckBox>            
+        </ToolBar>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="6"/>
+            </Grid.ColumnDefinitions>
+            <avalonedit:TextEditor
+				Name="uxSqlEditor"
+				FontFamily="Consolas"
+				FontSize="10pt"
+			>-- Enter your DDL sql here. One block only, cannot currently enter multiple blocks separated by / 
+            </avalonedit:TextEditor>
+            <GridSplitter Grid.Column="1" Width="2" Background="Black" HorizontalAlignment="Left"/>
+            <DockPanel Grid.Column="1" Margin="4 0 0 0">
+                <ComboBox Name="uxPropertyGridComboBox" DockPanel.Dock="Top"
+				          SelectedIndex="0" SelectionChanged="PropertyGridComboBoxSelectionChanged">
+                    <ComboBoxItem>TextEditor</ComboBoxItem>
+                    <ComboBoxItem>TextArea</ComboBoxItem>
+                    <ComboBoxItem>Options</ComboBoxItem>
+                </ComboBox>
+                <WindowsFormsHost DockPanel.Dock="Right" Name="propertyGridHost">
+                    <forms:PropertyGrid x:Name="propertyGrid"/>
+                </WindowsFormsHost>
+            </DockPanel>
+        </Grid>
+    </DockPanel>
+</UserControl>

@@ -1,0 +1,328 @@
+﻿<UserControl x:Class="TFSArtifactManager.Views.DatabasePackagerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:jas="clr-namespace:TFSArtifactManager.Plumbing"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:cmd="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WPF4"
+             mc:Ignorable="d" d:DesignHeight="501" d:DesignWidth="917" DataContext="{Binding DatabasePackager, Source={StaticResource Locator}}">
+    
+    <UserControl.Resources>
+        <Style x:Key="ItemContStyle" TargetType="ListViewItem">
+            <Style.Resources>
+                <LinearGradientBrush x:Key="MouseOverBrush" StartPoint="0.5, 0" EndPoint="0.5, 1">
+                    <GradientStop Color="#22000000" Offset="0" />
+                    <GradientStop Color="#44000000" Offset="0.4" />
+                    <GradientStop Color="#55000000" Offset="0.6" />
+                    <GradientStop Color="#33000000" Offset="0.9" />
+                    <GradientStop Color="#22000000" Offset="1" />
+                </LinearGradientBrush>
+            </Style.Resources>
+            <Setter Property="Padding" Value="0,4" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <!-- The default control template for ListViewItem has a Border 
+           which contains the item's content. -->
+            <Setter Property="Border.BorderThickness" Value="0,0,0,0.5" />
+            <Setter Property="Border.BorderBrush" Value="LightGray" />
+            <!-- These triggers react to changes in the attached properties set
+           during a managed drag-drop operation. -->
+            <Style.Triggers>
+                <Trigger Property="jas:ListViewItemDragState.IsBeingDragged" Value="True">
+                    <Setter Property="FontWeight" Value="DemiBold" />
+                </Trigger>
+                <Trigger Property="jas:ListViewItemDragState.IsUnderDragCursor" Value="True">
+                    <Setter Property="Background" Value="{StaticResource MouseOverBrush}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="LinkButton" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <TextBlock  TextDecorations="None">
+                        <ContentPresenter /></TextBlock>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Foreground"  Value="Blue" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="true">
+                    <Setter  Property="Foreground"  Value="Red" />
+                    <Setter Property="Cursor" Value="Hand"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <BooleanToVisibilityConverter x:Key="boolVisConv" />
+        
+        <DataTemplate x:Key="DbTasks">
+            <ListView ItemsSource="{Binding Tasks}" BorderThickness="0" MaxHeight="40">
+                <ListView.View>
+                    <GridView>
+                        <GridView.ColumnHeaderContainerStyle>
+                            <Style>
+                                <Setter Property="FrameworkElement.Visibility" Value="Collapsed"/>
+                            </Style>
+                        </GridView.ColumnHeaderContainerStyle>
+
+                        <GridViewColumn Header="Id" Width="50">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Grid HorizontalAlignment="Left" Width="Auto">
+                                        <Button Width="Auto" Style="{StaticResource LinkButton}" Content="{Binding Id}" >
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="Click">
+                                                    <cmd:EventToCommand Command="{Binding ElementName=uxRoot, Path=DataContext.OpenTfsTaskCommand}"
+                                                                                                        PassEventArgsToCommand="True"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </Button>
+                                    </Grid>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+
+                        <GridViewColumn Header="Assigned To" Width="105" DisplayMemberBinding="{Binding AssignedTo}"/>
+                        <GridViewColumn Header="Title" Width="Auto" DisplayMemberBinding="{Binding AbbreviatedTitle}"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </DataTemplate>
+        
+        <DataTemplate x:Key="SchemaColumnEditable">
+            <ComboBox IsEditable="True" ItemsSource="{Binding DataContext.Schemas, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DockPanel}}" 
+                      Text="{Binding Schema, Mode=TwoWay}" />            
+        </DataTemplate>
+
+        <DataTemplate x:Key="SchemaColumnReadOnly">
+            <TextBlock Text="{Binding Schema, Mode=OneWay}"/>
+        </DataTemplate>
+                
+        <DataTemplate x:Key="schemaDetails">
+            <ContentPresenter x:Name="schemaContentPresenter" 
+                ContentTemplate="{StaticResource SchemaColumnReadOnly}" 
+                Content="{TemplateBinding Content}" />
+
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding IsAttachment}" Value="True">
+                    <Setter TargetName="schemaContentPresenter"  Property="ContentTemplate"  Value="{StaticResource SchemaColumnEditable}" />
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>        
+    </UserControl.Resources>
+    
+    <DockPanel x:Name="uxRoot">
+        <ToolBar DockPanel.Dock="Top">
+            <Button x:Name="uxSaveAsButton" Click="uxSaveAsButton_Click" ToolTip="Save database change package info to disk under a new name">
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/Images/SaveAs.png" Height="16" />
+                    <TextBlock Text="Save As" Margin="4,0,0,0"/>
+                </StackPanel>
+            </Button>
+            <Button x:Name="uxOpenButton" ToolTip="Open database change package info from a file" Click="uxOpenButton_Click">
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/Images/Open.png" Height="16"/>
+                    <TextBlock Text="Open" Margin="4,0,0,0"/>
+                </StackPanel>
+            </Button>
+            <StackPanel Orientation="Horizontal" Margin="15,0,0,0">
+                <TextBlock Text="Database Type" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                <ComboBox x:Name="uxDatabaseTypeCombo" Width="80" ItemsSource="{Binding DatabaseTypes}" VerticalAlignment="Center"
+                          ToolTip="Determines sql syntax to use when previewing / opening a SQL object"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" Visibility="{Binding HasChanges, Converter={StaticResource boolVisConv}}" Margin="30,0,0,0">
+                <TextBlock Text="Work Item" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                <Button Width="Auto" Style="{StaticResource LinkButton}" Content="{Binding Changes.RootWorkItemId}" VerticalAlignment="Center">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <cmd:EventToCommand Command="{Binding OpenTfsTaskCommand}" PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+                
+                <TextBlock Text="{Binding Changes.GeneratedAt, StringFormat='Generated At {0:G}'}" VerticalAlignment="Center" Margin="30,0,8,0"/>
+
+                <Button Width="Auto" Style="{StaticResource LinkButton}" Margin="30,0,0,0" Content="DB Folder" VerticalAlignment="Center" 
+                        Command="{Binding OpenRootDbFolderCommand}">
+                </Button>
+            </StackPanel>            
+        </ToolBar>
+    
+        <Grid>
+            <Grid.RowDefinitions>                
+                <RowDefinition Height="*"/> <!-- Excluded-->
+                <RowDefinition Height="3"/> <!-- Splitter-->
+                <RowDefinition Height="*"/> <!-- Included-->
+            </Grid.RowDefinitions>
+
+            <Expander Grid.Row="0" Header="{Binding ExcludedTitle, Mode=TwoWay}" IsExpanded="True">
+                <Grid VerticalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">                    
+                        <GroupBox  Header="Filtering"  HorizontalAlignment="Left">                    
+                            <StackPanel  Orientation="Horizontal">
+                                <TextBlock Text="Type" Margin="3" VerticalAlignment="Center"/>
+                                <ComboBox ItemsSource="{Binding Types}" Text="{Binding FilterType, Mode=TwoWay}" Width="120" Height="25" VerticalAlignment="Center"/>
+
+                                <TextBlock Text="Schema" Margin="12,3,3,0" VerticalAlignment="Center"/>
+                                <ComboBox ItemsSource="{Binding Schemas}" Text="{Binding FilterSchema, Mode=TwoWay}" Width="120" Height="25" VerticalAlignment="Center"/>
+
+                                <TextBlock Text="State" Margin="12,3,3,0" VerticalAlignment="Center"/>
+                                <ComboBox ItemsSource="{Binding States}" Text="{Binding FilterState, Mode=TwoWay}" Width="120" Height="25" VerticalAlignment="Center"/>
+
+                                <TextBlock Text="Assignee" Margin="12,3,3,0" VerticalAlignment="Center"/>
+                                <ComboBox ItemsSource="{Binding Assignees}" Text="{Binding FilterAssignee, Mode=TwoWay}" Width="120" Height="25" VerticalAlignment="Center"/>
+                            </StackPanel>                    
+                        </GroupBox>
+
+                        <GroupBox Grid.Row="0" Grid.Column="1" Header="Actions" Margin="15,0,0,0"  HorizontalAlignment="Left">
+                            <ToolBar>
+                                <Button x:Name="uxExcludeSelectAllButton" ToolTip="Select All" Click="ExcludedSelectAll">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="/Images/selectall.gif" Height="20" Width="20"/>
+                                        <TextBlock Text="Select All" Margin="4,0,0,0"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button ToolTip="Include selected item(s) (Insert)" Command="{Binding IncludeSelectedCommand}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="/Images/PlusBlue.png" Height="20" Width="20"/>
+                                        <TextBlock Text="Include" Margin="4,0,0,0"/>
+                                    </StackPanel>                                
+                                </Button>                                
+                            </ToolBar>
+                        </GroupBox>
+                    </StackPanel>
+
+                    <ListView Grid.Row="1" Name="uxExcludedListView"       
+                      ItemContainerStyle="{StaticResource ItemContStyle}"
+                      Margin="4" Padding="2" MinHeight="200"
+                      SelectionMode="Extended" ItemsSource="{Binding ChangesView}" 
+                      SelectionChanged="uxExcludedListView_SelectionChanged"
+                      IsSynchronizedWithCurrentItem="True"
+                      jas:GridViewSort.AutoSort="True"
+                      PreviewKeyDown="ListView_PreviewKeyDown"
+                      >
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="File" Width="400" jas:GridViewSort.PropertyName="File">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Grid HorizontalAlignment="Left" Width="Auto">
+                                                <Button Width="Auto" Style="{StaticResource LinkButton}" Content="{Binding File}" 
+                                                        Click="File_Click" ToolTip="{Binding ServerItem}">
+                                                </Button>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Schema" Width="109" 
+                                    jas:GridViewSort.PropertyName="Schema" CellTemplate="{StaticResource schemaDetails}"/>
+                                <GridViewColumn Header="Type" DisplayMemberBinding="{Binding Type}" Width="105"
+                                    jas:GridViewSort.PropertyName="Type"/>
+                                <GridViewColumn Header="State" DisplayMemberBinding="{Binding ChangeState}" Width="105"
+                                    jas:GridViewSort.PropertyName="ChangeState"/>
+                                <GridViewColumn Header="First Changed" DisplayMemberBinding="{Binding FirstChanged, StringFormat=MM/dd/yyyy hh:mm:ss tt}" Width="143"
+                                    jas:GridViewSort.PropertyName="FirstChanged"/>
+                                <GridViewColumn Header="Last Changed" DisplayMemberBinding="{Binding LastChanged, StringFormat=MM/dd/yyyy hh:mm:ss tt}" Width="143"
+                                    jas:GridViewSort.PropertyName="LastChanged"/>
+                                <GridViewColumn Header="Change Type(s)" DisplayMemberBinding="{Binding ChangeTypesText}"
+                                    jas:GridViewSort.PropertyName="ChangeTypeText"/>
+                                <GridViewColumn Header="TFS Task(s)" Width="Auto" CellTemplate="{StaticResource DbTasks}"/>                                    
+                                
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </Grid>
+            </Expander>
+
+            <GridSplitter 
+                ResizeDirection="Rows"                        
+                Grid.Row="1" 
+                Width="Auto" 
+                Height="2" 
+                HorizontalAlignment="Stretch" 
+                VerticalAlignment="Stretch" 
+                Background="Red"
+                Opacity=".5"
+                Margin="0"
+             />
+
+            <Expander Grid.Row="2" Header="{Binding IncludedTitle, Mode=TwoWay}" IsExpanded="True">
+                <Grid VerticalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <GroupBox Grid.Row="0" Header="Actions" Margin="0,0,0,0"  HorizontalAlignment="Left">
+                        <ToolBar>
+                            <Button x:Name="uxIncludeSelectAllButton" ToolTip="Select All" Click="IncludedSelectAll">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/Images/selectall.gif" Height="20" Width="20"/>
+                                    <TextBlock Text="Select All" Margin="4,0,0,0"/>
+                                </StackPanel>
+                            </Button>
+                            <Button ToolTip="Exclude selected item(s) (Delete)" Command="{Binding ExcludeSelectedCommand}" Margin="0,0,10,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/Images/MinusBlue.png" Height="20" Width="20"/>
+                                    <TextBlock Text="Exclude" Margin="4,0,0,0"/>
+                                </StackPanel>
+                            </Button>
+                            <Button ToolTip="Move Selected Item Up (Ctrl+Up)" Command="{Binding MoveUpCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/Images/UpBlue.png" Height="20" Width="20"/>
+                                    <TextBlock Text="Move Up" Margin="4,0,0,0"/>
+                                </StackPanel>
+                            </Button>
+                            <Button ToolTip="Move Selected Item Down (Ctrl+Down)" Command="{Binding MoveDownCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/Images/DownBlue.png" Height="20" Width="20"/>
+                                    <TextBlock Text="Move Down" Margin="4,0,0,0"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Margin="10,0,0,0" ToolTip="Package - publish directory of ordered script files" Command="{Binding PackageCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/Images/package.png" Height="20" Width="20"/>
+                                    <TextBlock Text="Package" Margin="4,0,0,0"/>
+                                </StackPanel>
+                            </Button>
+                        </ToolBar>
+                    </GroupBox>
+                    <ListView Grid.Row="1" Name="uxIncludedListView"       
+                      ItemContainerStyle="{StaticResource ItemContStyle}"
+                      Margin="4" Padding="2" MinHeight="200"
+                      SelectionMode="Extended" ItemsSource="{Binding Changes.IncludedChanges}" 
+                      SelectionChanged="uxIncludedListView_SelectionChanged"
+                      PreviewKeyDown="ListView_PreviewKeyDown">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="#" DisplayMemberBinding="{Binding Index, Mode=TwoWay}" Width="35"/>
+                                <GridViewColumn Header="File" Width="400">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Grid HorizontalAlignment="Left" Width="Auto">
+                                                <Button Width="Auto" Style="{StaticResource LinkButton}" Content="{Binding File}" 
+                                                        Click="File_Click" ToolTip="{Binding ServerItem}">
+                                                </Button>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Schema" Width="109" CellTemplate="{StaticResource schemaDetails}" />
+                                <GridViewColumn Header="Type" DisplayMemberBinding="{Binding Type}" Width="105" />
+                                <GridViewColumn Header="State" DisplayMemberBinding="{Binding ChangeState}" Width="105"   />
+                                <GridViewColumn Header="First Changed" DisplayMemberBinding="{Binding FirstChanged, StringFormat=MM/dd/yyyy hh:mm:ss tt}" Width="143" />
+                                <GridViewColumn Header="Last Changed" DisplayMemberBinding="{Binding LastChanged, StringFormat=MM/dd/yyyy hh:mm:ss tt}" Width="143" />
+                                <GridViewColumn Header="Change Type(s)" DisplayMemberBinding="{Binding ChangeTypesText}" />
+                                <GridViewColumn Header="TFS Task(s)" Width="Auto" CellTemplate="{StaticResource DbTasks}"/>                                
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </Grid>
+            </Expander>
+        </Grid>
+    </DockPanel>
+</UserControl>

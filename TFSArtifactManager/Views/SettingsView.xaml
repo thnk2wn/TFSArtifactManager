@@ -1,0 +1,18 @@
+﻿<Window x:Class="TFSArtifactManager.Views.SettingsView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:extToolkit="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit/extended" Title="Settings" Height="140" Width="300" 
+        WindowStartupLocation="CenterScreen" WindowStyle="ToolWindow" WindowState="Normal"
+        DataContext="{Binding Settings, Source={StaticResource Locator}}"
+        FocusManager.FocusedElement="{Binding ElementName=uxTfsServerTextBox}"
+        >
+    <StackPanel FocusManager.IsFocusScope="True">
+        <TextBlock Text="TFS Server" Margin="5,0,0,0"/>
+        <TextBox x:Name="uxTfsServerTextBox" Text="{Binding TfsServer, Mode=TwoWay}" Margin="5"/>
+
+        <TextBlock Text="TFS Web URL Port" Margin="5,0,0,0"/>
+        <extToolkit:IntegerUpDown Value="{Binding TfsWebUrlPort}" Width="70" Margin="5,0,0,0" HorizontalAlignment="Left"/>
+
+        <Button x:Name="uxCloseButton" Content="OK" Width="75" Margin="5,20,0,0" Click="uxCloseButton_Click"/>
+    </StackPanel>
+</Window>
