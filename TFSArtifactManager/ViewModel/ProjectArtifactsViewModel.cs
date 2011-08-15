@@ -163,11 +163,7 @@ namespace TFSArtifactManager.ViewModel
             var excludeList = new List<string>();
             this.SourceControlExclusionsText.Split('\r').ToList().ForEach(x=> excludeList.Add(x.Replace("\n", string.Empty)));
             config.SourceControlExclusions = excludeList.Where(x=> !string.IsNullOrWhiteSpace(x)).ToArray();
-
-            var configPath = AppDomain.CurrentDomain.BaseDirectory;
-            config.KnownFileTypes = new KnownFileTypes();
-            config.KnownFileTypes.DatabaseFileTypes.Load(Path.Combine(configPath, "DatabaseFileTypes.xml"));
-            config.KnownFileTypes.ReportFileTypes.Load(Path.Combine(configPath, "ReportFileTypes.xml"));
+            config.KnownFileTypes = IoC.Get<KnownFileTypes>();
 
             var downloader = new MassDownload();
             //using (var downloader = new MassDownload())

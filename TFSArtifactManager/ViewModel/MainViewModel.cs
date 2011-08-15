@@ -11,6 +11,7 @@ using TFSArtifactManager.Plumbing;
 using TFSArtifactManager.Properties;
 using TFSWorkItemChangesetInfo;
 using TFSWorkItemChangesetInfo.Changesets;
+using TFSWorkItemChangesetInfo.IO;
 
 namespace TFSArtifactManager.ViewModel
 {
@@ -79,7 +80,8 @@ namespace TFSArtifactManager.ViewModel
                             this.BusyText = "Getting work item info from TFS";
                             this.IsBusy = true;
                             //TODO: use command pattern for this
-                            var csInfo = new ChangesetInfo(Settings.Default.TfsServerName);
+                            var known = IoC.Get<KnownFileTypes>();
+                            var csInfo = new ChangesetInfo(Settings.Default.TfsServerName, known);
                             csInfo.GetInfo(resultVm.WorkItemId.Value);
                             this.BusyText = "Downloading work item files";
                             csInfo.Downloader.DownloadAllFiles();

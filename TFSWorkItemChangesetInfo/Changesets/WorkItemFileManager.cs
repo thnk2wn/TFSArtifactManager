@@ -13,9 +13,9 @@ namespace TFSWorkItemChangesetInfo.Changesets
 {
     public class WorkItemFileManager
     {
-        internal WorkItemFileManager()
+        internal WorkItemFileManager(KnownFileTypes knownFileTypes)
         {
-            this.KnownFileTypes = new KnownFileTypes();
+            this.KnownFileTypes = knownFileTypes;
             this.DeployInfo = new WorkItemDeployInfo();
             this.DbFileOrderGuess = new Dictionary<string, int>();
         }

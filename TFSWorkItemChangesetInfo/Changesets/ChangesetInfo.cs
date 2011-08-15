@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.TeamFoundation.Client;
 using Microsoft.TeamFoundation.VersionControl.Client;
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
+using TFSWorkItemChangesetInfo.IO;
 using Server = TFSCommon.Server;
 
 namespace TFSWorkItemChangesetInfo.Changesets
@@ -19,14 +20,14 @@ namespace TFSWorkItemChangesetInfo.Changesets
         private List<Changeset> TfsChangeSets { get; set; }
         private WorkItem WorkItem { get; set; }
 
-        public ChangesetInfo(string tfsServer)
+        public ChangesetInfo(string tfsServer, KnownFileTypes knownFileTypes)
         {
             if (string.IsNullOrWhiteSpace(tfsServer))
                 throw new ArgumentNullException("tfsServer", "tfsServer is required");
             _tfs = Server.GetTfsServer(tfsServer);
             _versionControl = _tfs.GetService(typeof(VersionControlServer)) as VersionControlServer;
             _workItemStore = (WorkItemStore)_tfs.GetService(typeof(WorkItemStore));
-            this.Downloader = new WorkItemFileManager();
+            this.Downloader = new WorkItemFileManager(knownFileTypes);
         }
 
         public int WorkItemId { get; private set; }

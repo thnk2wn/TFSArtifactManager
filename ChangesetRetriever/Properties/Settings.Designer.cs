@@ -23,21 +23,27 @@ namespace ChangesetRetriever.Properties {
             }
         }
         
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string DefaultBaseOutputDir {
             get {
                 return ((string)(this["DefaultBaseOutputDir"]));
             }
+            set {
+                this["DefaultBaseOutputDir"] = value;
+            }
         }
         
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string TfsServer {
             get {
                 return ((string)(this["TfsServer"]));
+            }
+            set {
+                this["TfsServer"] = value;
             }
         }
     }
