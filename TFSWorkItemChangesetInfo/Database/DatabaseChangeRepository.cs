@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using TFSWorkItemChangesetInfo.IO;
+using TFSWorkItemChangesetInfo.WorkItems;
 
 namespace TFSWorkItemChangesetInfo.Database
 {

@@ -2,26 +2,32 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Threading;
 using GalaSoft.MvvmLight.Command;
 using TFSArtifactManager.DI;
 using TFSArtifactManager.Plumbing;
 using TFSArtifactManager.Properties;
 using TFSWorkItemChangesetInfo.Changesets.MassDownload;
 using TFSWorkItemChangesetInfo.IO;
+using TFSWorkItemChangesetInfo.WorkItems;
 
 namespace TFSArtifactManager.ViewModel
 {
     public class ProjectArtifactsViewModel : WorkspaceViewModel
     {
-        public ProjectArtifactsViewModel()
+        public ProjectArtifactsViewModel(IMessageBoxService messageBoxService)
         {
+            _messageBoxService = messageBoxService;
             SetupCommands();
             SetupArtifactWorker();
             LoadDefaults();
             this.FetchText = "Fetch";
         }
+
+        private readonly IMessageBoxService _messageBoxService;
 
         public override string WorkspaceHeader
         {
@@ -35,18 +41,24 @@ namespace TFSArtifactManager.ViewModel
             ProjectArtifactsCommand = new RelayCommand(GetProjectArtifacts, CanExecuteFetch);
             DbPackageCommand = new RelayCommand(OpenDatabasePackager, CanExecutePackage);
             this.CancelDownloadCommand = new RelayCommand(CancelDownload, CanCancelDownload);
+            this.CheckWorkItemIdCommand = new RelayCommand(CheckWorkItemId);
         }
 
         private void LoadDefaults()
         {
             this.SourceControlExclusionsText = Settings.Default.MassLastSourceControlExclusions;
             this.ProjectId = Settings.Default.MassLastWorkItemId;
+
+            if (this.ProjectId > 0)
+            {
+                this.CheckWorkItemIdCommand.Execute(null);
+            }
         }
 
         private bool CanExecuteFetch()
         {
             var canExecute = this.ProjectId > 0;
-            canExecute = canExecute && !IsFetching;
+            canExecute = canExecute && !IsFetching && (null != this.WorkItemTitle && WORK_ITEM_FETCH != this.WorkItemTitle);
             return canExecute;
         }
 
@@ -120,10 +132,8 @@ namespace TFSArtifactManager.ViewModel
                 IsFetching = false;
                 FetchText = "Fetch";
 
-                // TODO: ViewModel friendly MessageBox method in base and call here
-                // at least in DeniedOrNotExist exception case - give bad id msg
-
-                throw e.Error;
+                _messageBoxService.ShowErrorDispatch(e.Error.Message, "Mass Download Error");
+                return;
             }
 
             var downloader = (MassDownload) e.Result;
@@ -209,7 +219,7 @@ namespace TFSArtifactManager.ViewModel
         {
             if (string.IsNullOrWhiteSpace(Settings.Default.TfsServerName))
             {
-                if (IoC.Get<IMessageBoxService>().ShowOkCancel("TFS Server name must first be specified. Enter now?", "Required Data"))
+                if (_messageBoxService.ShowOkCancel("TFS Server name must first be specified. Enter now?", "Required Data"))
                 {
                     IoC.Get<MainViewModel>().SettingsCommand.Execute(null);
                 }
@@ -217,6 +227,12 @@ namespace TFSArtifactManager.ViewModel
 
             if (string.IsNullOrWhiteSpace(Settings.Default.TfsServerName))
                 return;
+
+            if (null == this.WorkItemTitle)
+            {
+                _messageBoxService.ShowOKDispatch("It does not appear you supplied a valid work item.", "Work Item Title");
+                return;
+            }
 
             IsFetching = true;
             FetchText = "Fetching...";
@@ -248,9 +264,13 @@ namespace TFSArtifactManager.ViewModel
                     _projectId = value;
                     RaisePropertyChanged(() => ProjectId);
                     ReCalculateCommands();
+                    this.WorkItemTitle = null;
+                    this.WorkItemIdInvalidated = true;
                 }
             }
         }
+
+        private bool WorkItemIdInvalidated { get; set; }
 
         private void ReCalculateCommands()
         {
@@ -281,10 +301,61 @@ namespace TFSArtifactManager.ViewModel
             return IsFetching && !CancelPending;
         }
 
+        private const string WORK_ITEM_FETCH = "[Fetching...]";
+
+        private void CheckWorkItemId()
+        {
+            if (!this.WorkItemIdInvalidated || this.ProjectId <= 0 ||string.IsNullOrWhiteSpace(Settings.Default.TfsServerName))
+                return;
+            
+            this.WorkItemTitle = WORK_ITEM_FETCH;
+            var uiTaskSch = TaskScheduler.FromCurrentSynchronizationContext();
+            var task = Task.Factory.StartNew(() => TaskInfoRetriever.Get(Settings.Default.TfsServerName, this.ProjectId));
+
+            // will not block
+            Task.Factory.ContinueWhenAll(new[] {task}, compl =>
+                {
+                    if (null == task.Exception)
+                    {
+                        this.WorkItemTitle = task.Result.Title;
+                        this.WorkItemIdInvalidated = false;
+                    }
+                    else
+                    {
+                        this.WorkItemTitle = null;
+                        var ex = task.Exception.InnerException;
+                        if (ex is InvalidWorkItemException)
+                            _messageBoxService.ShowOKDispatch(ex.Message, "Invalid Work Item");
+                        else
+                            _messageBoxService.ShowErrorDispatch(ex.Message, "Unexpected Error");
+                    }
+
+                    ReCalculateCommands();
+                },
+                CancellationToken.None, TaskContinuationOptions.None, uiTaskSch);
+        }
+
+        private string _workItemTitle;
+
+        public string WorkItemTitle
+        {
+            get { return _workItemTitle; }
+            set
+            {
+                if (_workItemTitle != value)
+                {
+                    _workItemTitle = value;
+                    RaisePropertyChanged(() => WorkItemTitle);
+                }
+            }
+        }
+
         public RelayCommand ProjectArtifactsCommand { get; private set; }
 
         public RelayCommand DbPackageCommand { get; private set; }
 
         public RelayCommand CancelDownloadCommand { get; private set; }
+
+        public RelayCommand CheckWorkItemIdCommand { get; private set; }
     }
 }

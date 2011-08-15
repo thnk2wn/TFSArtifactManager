@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
 using TFSWorkItemChangesetInfo.Database;
 using TFSWorkItemChangesetInfo.Extensions.Microsoft.TeamFoundation.WorkItemTracking.Client_;
 using TFSWorkItemChangesetInfo.IO;
+using TFSWorkItemChangesetInfo.WorkItems;
 
 namespace TFSWorkItemChangesetInfo.Changesets.MassDownload
 {

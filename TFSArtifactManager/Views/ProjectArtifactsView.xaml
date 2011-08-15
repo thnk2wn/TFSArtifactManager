@@ -5,7 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TFSArtifactManager.Plumbing"                          
         xmlns:extToolkit="clr-namespace:Microsoft.Windows.Controls;assembly=WPFToolkit.Extended"
-        mc:Ignorable="d"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:cmd="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WPF4"
+             mc:Ignorable="d"
         x:Name="TheProjectArtifactsView"
         Loaded="TheProjectArtifactsView_Loaded"                     
         DataContext="{Binding ProjectArtifacts, Source={StaticResource Locator}}">
@@ -59,9 +61,22 @@
             <!-- content: -->
             <StackPanel x:Name="uxControlContainer"  Orientation="Horizontal" VerticalAlignment="Top" Margin="8">
 
-                <Label x:Name="uxIdLabel" Content="Id" VerticalAlignment="Top"/>
-                <TextBox x:Name="uxIdTextBox" Width="50" Height="25" AcceptsReturn="False" MaxLength="7" VerticalAlignment="Top" TextWrapping="NoWrap" PreviewTextInput="uxIdTextBox_PreviewTextInput" 
-                         Text="{Binding ProjectId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringIntConverter}}" />
+                <StackPanel Orientation="Vertical">                    
+                    <StackPanel Orientation="Horizontal">
+                        <Label x:Name="uxIdLabel" Content="TFS Root Work Item Id" VerticalAlignment="Top"/>
+                        <TextBox x:Name="uxIdTextBox" Width="50" Height="25" AcceptsReturn="False" MaxLength="7" VerticalAlignment="Top" TextWrapping="NoWrap" PreviewTextInput="uxIdTextBox_PreviewTextInput" 
+                             Text="{Binding ProjectId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringIntConverter}}"
+                             ToolTip="Root TFS work item id (i.e. project work item)">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="LostFocus">
+                                    <cmd:EventToCommand Command="{Binding CheckWorkItemIdCommand}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </TextBox>
+                    </StackPanel>
+                    <extToolkit:WatermarkTextBox IsReadOnly="True" Text="{Binding WorkItemTitle}" Background="WhiteSmoke" Margin="3,0,0,3" 
+                        Width="177" HorizontalAlignment="Left" Watermark="[Work Item Description]" ToolTip="{Binding WorkItemTitle}"/>
+                </StackPanel>
 
                 <TextBlock Text="Source Control Exclusions" Margin="20,0,8,8"/>
                 <TextBox x:Name="uxSourceExclusions" Text="{Binding SourceControlExclusionsText}" MaxHeight="125" MinWidth="350" MinHeight="50" TextWrapping="NoWrap" 

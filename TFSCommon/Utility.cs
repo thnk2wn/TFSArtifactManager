@@ -29,6 +29,12 @@ namespace TFSCommon
 
         #endregion
 
+        public WorkItem GetWorkItem(int id)
+        {
+            var targetWorkItem = Store.GetWorkItem(id);
+            return targetWorkItem;
+        }
+
         public IEnumerable<WorkItem> GetRelatedWorkItems(int id)
         {
             return GetRelatedWorkItems(id, wi => wi.Id > 0);            

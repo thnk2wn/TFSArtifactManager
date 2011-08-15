@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using TFSWorkItemChangesetInfo.IO;
+using TFSWorkItemChangesetInfo.WorkItems;
 
 namespace TFSWorkItemChangesetInfo.Database
 {
@@ -190,25 +191,7 @@ namespace TFSWorkItemChangesetInfo.Database
         }
     }
 
-    public class TaskInfo
-    {
-        public int Id { get; set; }
-        public string Title { get; set; }
-        public string AssignedTo { get; set; }
-        public string State { get; set; }
-
-        private const int MAX_TITLE = 90;
-
-        public string AbbreviatedTitle
-        {
-            get
-            {
-                if (null != this.Title && this.Title.Length > MAX_TITLE)
-                    return this.Title.Substring(0, MAX_TITLE - 3) + "...";
-                return this.Title;
-            }
-        }
-    }
+    
 
     // direct copy of TFS. don't want to have to ref tfs assembly in UX
     [Flags]

@@ -144,13 +144,13 @@ namespace TFSArtifactManager.ViewModel
         }
 
         private void OpenWorkspaceAction<T>()
-            where T: WorkspaceViewModel, new()
+            where T: WorkspaceViewModel//, new()
         {
             OpenWorkspaceItem<T>();
         }
 
         public T OpenWorkspaceItem<T>(T vm = null, bool allowMulti = false)
-            where T: WorkspaceViewModel, new()
+            where T: WorkspaceViewModel//, new()
         {
             var workspaceVm = this.Workspaces.FirstOrDefault(x => x is T);
 
