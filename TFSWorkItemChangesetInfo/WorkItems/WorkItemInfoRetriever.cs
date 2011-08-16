@@ -3,16 +3,16 @@ using TFSCommon;
 
 namespace TFSWorkItemChangesetInfo.WorkItems
 {
-    public class TaskInfoRetriever
+    public class WorkItemInfoRetriever
     {
-        public static TaskInfo Get(string tfsServer, int id)
+        public static WorkItemInfo Get(string tfsServer, int id)
         {
             using (var util = new Utility(tfsServer))
             {
                 try
                 {
                     var wi = util.GetWorkItem(id);
-                    return new TaskInfo(wi);
+                    return new WorkItemInfo(wi);
                 }
                 catch (DeniedOrNotExistException badWorkItemEx)
                 {

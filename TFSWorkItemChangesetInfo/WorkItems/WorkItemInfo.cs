@@ -3,7 +3,7 @@ using TFSWorkItemChangesetInfo.Extensions.Microsoft.TeamFoundation.WorkItemTrack
 
 namespace TFSWorkItemChangesetInfo.WorkItems
 {
-    public class TaskInfo
+    public class WorkItemInfo
     {
         public int Id { get; set; }
         public string Title { get; set; }
@@ -22,12 +22,12 @@ namespace TFSWorkItemChangesetInfo.WorkItems
             }
         }
 
-        public TaskInfo()
+        public WorkItemInfo()
         {
             return;
         }
 
-        internal TaskInfo(WorkItem workItem)
+        internal WorkItemInfo(WorkItem workItem)
         {
             this.Id = workItem.Id;
             this.Title = workItem.Title;

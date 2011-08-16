@@ -309,21 +309,18 @@ namespace TFSArtifactManager.ViewModel
                 return;
             
             this.WorkItemTitle = WORK_ITEM_FETCH;
-            var uiTaskSch = TaskScheduler.FromCurrentSynchronizationContext();
-            var task = Task.Factory.StartNew(() => TaskInfoRetriever.Get(Settings.Default.TfsServerName, this.ProjectId));
-
-            // will not block
-            Task.Factory.ContinueWhenAll(new[] {task}, compl =>
+            Task.Factory.StartNew(() => WorkItemInfoRetriever.Get(
+                Settings.Default.TfsServerName, this.ProjectId)).ContinueWith(t =>
                 {
-                    if (null == task.Exception)
+                    if (null == t.Exception)
                     {
-                        this.WorkItemTitle = task.Result.Title;
+                        this.WorkItemTitle = t.Result.Title;
                         this.WorkItemIdInvalidated = false;
                     }
                     else
                     {
                         this.WorkItemTitle = null;
-                        var ex = task.Exception.InnerException;
+                        var ex = t.Exception.InnerException;
                         if (ex is InvalidWorkItemException)
                             _messageBoxService.ShowOKDispatch(ex.Message, "Invalid Work Item");
                         else
@@ -331,8 +328,7 @@ namespace TFSArtifactManager.ViewModel
                     }
 
                     ReCalculateCommands();
-                },
-                CancellationToken.None, TaskContinuationOptions.None, uiTaskSch);
+                }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private string _workItemTitle;

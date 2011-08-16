@@ -128,7 +128,7 @@ namespace TFSWorkItemChangesetInfo.Database
             var xTasks = xChange.Element("Tasks");
             xTasks.Elements().ToList().ForEach(xTask=>
                 {
-                    var taskInfo = new TaskInfo
+                    var taskInfo = new WorkItemInfo
                     {
                         AssignedTo = xTask.Attribute("AssignedTo").Value,
                         Id = Convert.ToInt32(xTask.Attribute("Id").Value),

@@ -13,7 +13,7 @@ namespace TFSWorkItemChangesetInfo.Database
     {
         public DatabaseChange()
         {
-            this.TaskList = new List<TaskInfo>();
+            this.TaskList = new List<WorkItemInfo>();
         }
 
         private string _filename;
@@ -96,9 +96,9 @@ namespace TFSWorkItemChangesetInfo.Database
             get { return (null != this.Extension) ? this.Extension.Name : null; }
         }
 
-        public ReadOnlyCollection<TaskInfo> Tasks
+        public ReadOnlyCollection<WorkItemInfo> Tasks
         {
-            get { return new ReadOnlyCollection<TaskInfo>(this.TaskList); }
+            get { return new ReadOnlyCollection<WorkItemInfo>(this.TaskList); }
         }
 
         public ReadOnlyCollection<ChangeTypes> ChangeTypes
@@ -117,7 +117,7 @@ namespace TFSWorkItemChangesetInfo.Database
             }
         }
 
-        private List<TaskInfo> TaskList { get; set; }
+        private List<WorkItemInfo> TaskList { get; set; }
 
         private readonly List<ChangeTypes> _changeTypes = new List<ChangeTypes>();
 
@@ -135,7 +135,7 @@ namespace TFSWorkItemChangesetInfo.Database
             get { return this.LastChangeType == Database.ChangeTypes.Delete; }
         }
 
-        internal void AddTask(TaskInfo ti)
+        internal void AddTask(WorkItemInfo ti)
         {
             if (!this.TaskList.Any(x=> x.Id == ti.Id))
                 this.TaskList.Add(ti);

@@ -47,7 +47,7 @@ namespace TFSWorkItemChangesetInfo.Changesets.MassDownload
                 };
 
             info.Tasks.ForEach(t => dbChange.AddTask(
-                    new TaskInfo { Id = t.Id, Title = t.Title, State = t.State, AssignedTo = t.GetAssignedTo() }));
+                    new WorkItemInfo { Id = t.Id, Title = t.Title, State = t.State, AssignedTo = t.GetAssignedTo() }));
 
             // change.Item.CheckinDate is DateTime.MinValue
             var checkinDate = info.Changeset.CreationDate;
@@ -170,7 +170,7 @@ namespace TFSWorkItemChangesetInfo.Changesets.MassDownload
                 change.LastChanged = taskAttach.LastWriteTime;
             }
 
-            change.AddTask(new TaskInfo
+            change.AddTask(new WorkItemInfo
             {
                 Id = task.Id,
                 State = task.State,

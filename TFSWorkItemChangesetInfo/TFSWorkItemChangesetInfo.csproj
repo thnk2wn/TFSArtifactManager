@@ -114,8 +114,8 @@
     <Compile Include="IO\ReportFileTypes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WorkItems\InvalidWorkItemException.cs" />
-    <Compile Include="WorkItems\TaskInfo.cs" />
-    <Compile Include="WorkItems\TaskInfoRetriever.cs" />
+    <Compile Include="WorkItems\WorkItemInfo.cs" />
+    <Compile Include="WorkItems\WorkItemInfoRetriever.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TFSCommon\TFSCommon.csproj">
