@@ -453,7 +453,7 @@ namespace TFSArtifactManager.ViewModel
 
         private void Open(string filename)
         {
-            var rep = new DatabaseChangeRepository();
+            var rep = new DatabaseChangeRepository {KnownFileTypes = IoC.Get<KnownFileTypes>()};
             this.Changes = rep.Load(filename);
             CalculateCounts();
         }

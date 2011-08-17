@@ -19,8 +19,11 @@ namespace TFSWorkItemChangesetInfo.IO
 
         public FileTypeInfo GetTypeForFilenameExt(string filename)
         {
-            var fi = new FileInfo(filename);
-            return GetTypeForExtension(fi.Extension);
+            var pos = filename.LastIndexOf(".");
+            var ext = filename.Substring(pos+1);
+            return GetTypeForExtension(ext);
+            //var fi = new FileInfo(filename);
+            //return GetTypeForExtension(fi.Extension);
         }
 
         public FileTypeInfo GetTypeForExtension(string fileExt)

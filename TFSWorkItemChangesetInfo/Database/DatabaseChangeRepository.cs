@@ -21,7 +21,7 @@ namespace TFSWorkItemChangesetInfo.Database
             this.KnownFileTypes = new KnownFileTypes();
         }
 
-        private KnownFileTypes KnownFileTypes { get; set; }
+        public KnownFileTypes KnownFileTypes { get; set; }
 
         public void Save(DatabaseChanges changes, string filename)
         {
@@ -94,9 +94,9 @@ namespace TFSWorkItemChangesetInfo.Database
         private DatabaseChange Change(XElement xChange, DatabaseChanges changes)
         {
             var xLastChangeType = xChange.Element("ChangeTypes").Elements().LastOrDefault();
-            var lastChangeType = ChangeTypes.None;
-            if (null != xLastChangeType)
-                lastChangeType = (ChangeTypes)Enum.Parse(typeof(ChangeTypes), xLastChangeType.Value);
+            //var lastChangeType = ChangeTypes.None;
+            //if (null != xLastChangeType)
+                //lastChangeType = (ChangeTypes)Enum.Parse(typeof(ChangeTypes), xLastChangeType.Value);
 
             var filename = Path.Combine(changes.RootDatabaseFolder,  xChange.Element("FilePath").Value);
             var fileType = this.KnownFileTypes.GetTypeForFilenameExt(filename);
