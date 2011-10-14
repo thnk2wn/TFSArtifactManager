@@ -158,6 +158,28 @@ namespace TFSWorkItemChangesetInfo.Changesets.MassDownload
             File.WriteAllText(closedWithArtifactsFile, sbCompleteSummary.ToString());
             File.WriteAllText(taskListFile, sbTaskList.ToString());
             File.WriteAllText(taskListClosedFile, sbTaskListClosed.ToString());
+
+            WriteActiveTasksFile();
+        }
+
+        private void WriteActiveTasksFile()
+        {
+            var activeTasks = this.TaskChanges.GroupBy(x => x.Task.Id).Select(x => x.First()).Where(
+                x => x.Task.State != "Closed").OrderBy(x=> x.Task.Title).ToList();
+            if (!activeTasks.Any()) return;
+
+            var sb = new StringBuilder();
+            sb.AppendFormat("{0} Task(s) Not Closed{1}{1}", activeTasks.Count, Environment.NewLine);
+            activeTasks.ForEach(x=>
+            {
+                var t = x.Task;
+                sb.AppendFormat("{0}{1}", t.Title, Environment.NewLine);
+                sb.AppendFormat("TFS #{0} [{1}] by {2}{3}{3}", t.Id, t.State, x.Task.GetAssignedTo(), Environment.NewLine);
+            });
+            
+            var filename = Path.Combine(DirUtility.EnsureDir(this.RootDownloadPath, "Tasks"),
+                                        "Task List (Not Closed).txt");
+            File.WriteAllText(filename, sb.ToString());
         }
 
         private void OutputTaskHyperlinks(string taskDir)
