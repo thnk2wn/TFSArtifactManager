@@ -609,7 +609,8 @@ namespace TFSArtifactManager.ViewModel
             var schemaCounts = new Dictionary<string, int>();
 
             // this should be a user configurable setting. this allows gaps between changes should others need to be inserted
-            const int skipBetween = 5; 
+            const int skipBetween = 5;
+            var warnings = new List<string>();
 
             this.Changes.IncludedChanges.OrderBy(x=> x.Index).ToList().ForEach(x=>
                 {
@@ -630,14 +631,28 @@ namespace TFSArtifactManager.ViewModel
                         schemaDir = Path.Combine(packageDir, index.ToString("00") + "_" + x.Schema);
                     }
 
-                    var schemaIndex = schemaCounts[x.Schema] * skipBetween;
-                    schemaCounts[x.Schema] += 1;
+                    if (!File.Exists(sourceFilename))
+                    {
+                        warnings.Add(string.Format("The following file does not exist. Perhaps it was deleted and should not have been included: {0}", sourceFilename));
+                    }
+                    else
+                    {
+                        var schemaIndex = schemaCounts[x.Schema] * skipBetween;
+                        schemaCounts[x.Schema] += 1;
 
-                    var targetFilename = Path.Combine(schemaDir, string.Format("{0:000}{1}{2}", schemaIndex, delim, x.File));
-                    File.Copy(sourceFilename, targetFilename);
+                        var targetFilename = Path.Combine(schemaDir, string.Format("{0:000}{1}{2}", schemaIndex, delim, x.File));
+                        File.Copy(sourceFilename, targetFilename);    
+                    }
                 });
 
             Process.Start(packageDir);
+
+            if (warnings.Any())
+            {
+                var warningsFile = Path.Combine(packageDir, "PackageWarnings.txt");
+                File.WriteAllText(warningsFile, string.Join(Environment.NewLine, warnings));
+                Process.Start(warningsFile);
+            }
         }
 
         private void OpenTfsTask(RoutedEventArgs e)
