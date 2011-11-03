@@ -42,6 +42,8 @@ namespace TFSWorkItemChangesetInfo.Changesets
             if (WorkItem == null)
                 throw new NullReferenceException("WorkItem");
 
+            this.Downloader.WorkItem = this.WorkItem;
+
             if (0 == WorkItem.ExternalLinkCount) return ChangeSets;
 
             var links = WorkItem.Links.OfType<ExternalLink>().AsEnumerable();
@@ -54,8 +56,7 @@ namespace TFSWorkItemChangesetInfo.Changesets
 
                 ((List<ChangeSetDetails>)this.ChangeSets).Add(cs);
             }
-
-            this.Downloader.WorkItem = this.WorkItem;
+            
             this.Downloader.Changesets = this.TfsChangeSets;
             
             return this.ChangeSets;

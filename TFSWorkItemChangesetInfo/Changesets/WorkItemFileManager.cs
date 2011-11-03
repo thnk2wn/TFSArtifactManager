@@ -117,8 +117,9 @@ namespace TFSWorkItemChangesetInfo.Changesets
 
         private void DownloadChangeSets()
         {
-            EnsureTfsItems();
-            this.Changesets.OrderBy(x => x.CreationDate).ToList().ForEach(DownloadChangeSet);
+            //EnsureTfsItems();
+            if (null != this.Changesets)
+                this.Changesets.OrderBy(x => x.CreationDate).ToList().ForEach(DownloadChangeSet);
         }
 
         private void DownloadWorkItemAttachments()
@@ -173,6 +174,8 @@ namespace TFSWorkItemChangesetInfo.Changesets
 
         private void CreateChangeInfoFile()
         {
+            if (null == this.Changesets) return;
+
             var csList = this.Changesets.OrderBy(cs=> cs.ChangesetId).ToList();
             var sb = new StringBuilder();
             var csIds = string.Empty;
