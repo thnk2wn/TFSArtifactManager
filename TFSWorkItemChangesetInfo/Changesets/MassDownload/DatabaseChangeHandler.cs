@@ -97,7 +97,8 @@ namespace TFSWorkItemChangesetInfo.Changesets.MassDownload
             var files = di.GetFiles("*.*", SearchOption.TopDirectoryOnly).Where(
                 f => !f.Extension.StartsWith(".deleted")).ToList();
 
-            if (files.Count < 2) return;
+            // still want to combine if only one actually
+            //if (files.Count < 2) return;
 
             const string combineSuffix = ".combined.sql";
             var combinedFilename = Path.Combine(path, string.Format("_{0}.{1} ({2}){3}", schema, di.Name, files.Count, combineSuffix));

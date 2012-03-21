@@ -6,7 +6,6 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using IntraApplicationLogService;
 using Microsoft.TeamFoundation.Client;
 using Microsoft.TeamFoundation.VersionControl.Client;
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
@@ -348,9 +347,21 @@ namespace TFSWorkItemChangesetInfo.Changesets.MassDownload
             foreach (var task in nonProcessedTasks)
             {
                 var result = new WorkItemResult {Task = task};
-                var extLinks = task.Links.OfType<ExternalLink>();
+                var extLinks = task.Links.OfType<ExternalLink>().ToList();
                 Log("Getting changeset list for task {0}", task.Id);
-                result.TaskChangeSets.AddRange(extLinks.Select(extLink => this.VersionControl.ArtifactProvider.GetChangeset(new Uri(extLink.LinkedArtifactUri))));
+                
+                extLinks.ForEach(l=>
+                {
+                    try
+                    {
+                        var cs = this.VersionControl.ArtifactProvider.GetChangeset(new Uri(l.LinkedArtifactUri));
+                        result.TaskChangeSets.Add(cs);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log(string.Format("ERROR getting changeset for '{0}': {1}", l.LinkedArtifactUri, ex.Message));
+                    }
+                });
 
                 results.Add(result);
 
@@ -383,7 +394,7 @@ namespace TFSWorkItemChangesetInfo.Changesets.MassDownload
                     if (e.Error == null)
                         logAction.BeginInvoke("File {0} downloaded.", e.UserState.ToString(), CallBack, logAction);
                     else
-                        logAction.BeginInvoke("Error: {0}", LogService.ExceptionFormatter(e.Error), CallBack, logAction);
+                        logAction.BeginInvoke("Error: {0}", e.Error.ToString(), CallBack, logAction);
                 };
 
                 webClient.DownloadProgressChanged += (s, e) => Log("{0} Progress Percentage: {1}", e.UserState, e.ProgressPercentage);
